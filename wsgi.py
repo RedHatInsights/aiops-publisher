@@ -26,8 +26,11 @@ def wake_up():
     filesystem = s3.connect(aws_key, aws_secret)
     s3.save_data(filesystem, aws_bucket, "Data going to bucket")
 
-    application.logger.info('Publishing message "data_available" on topic %s', topic)
-    producer.publish_message(server, topic, 'data_available')
+    value = {'url': "INPUT DATA ORIGIN IN S3", 'rh_account': "ACCOUNT"}
+    data_to_send = {'value': value}
+
+    application.logger.info('Publishing message on topic %s', topic)
+    producer.publish_message(server, "available", data_to_send)
     return 'aiops-publisher activated!'
 
 if __name__ == '__main__':
