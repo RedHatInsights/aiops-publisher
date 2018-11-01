@@ -8,6 +8,7 @@ app = "*"
 flask = "*"
 kafka-python = "*"
 "s3fs" = "*"
+"gunicorn" = "*"
 
 [dev-packages]
 pylama = "*"

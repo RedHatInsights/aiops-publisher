@@ -7,7 +7,7 @@ def connect(key: str, secret: str) -> S3FileSystem:
     return filesystem
 
 def save_data(filesystem: str, bucket: str, data: str) -> dict:
-    """saves the data received from AI Service"""
-    with filesystem.open(bucket, 'w') as f:  #bucket = 'myaiops/aidata'
+    """Saves the data received from AI Service."""
+    with filesystem.open(bucket, 'w') as f:
         f.write(data)
     filesystem.du(bucket)
