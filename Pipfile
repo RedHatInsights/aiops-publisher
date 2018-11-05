@@ -4,6 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+app = "*"
+flask = "*"
+kafka-python = "*"
+"s3fs" = "*"
+"gunicorn" = "*"
 
 [dev-packages]
 pylama = "*"
