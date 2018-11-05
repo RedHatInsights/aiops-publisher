@@ -7,7 +7,7 @@ import logging
 import s3
 import producer
 
-application = Flask(__name__)
+application = Flask(__name__)  # noqa
 
 ROOT_LOGGER = logging.getLogger()
 ROOT_LOGGER.setLevel(application.logger.level)
