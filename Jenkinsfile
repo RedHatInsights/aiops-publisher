@@ -18,10 +18,10 @@ unitTestContext = "continuous-integration/jenkins/unittest"
 pipInstallContext = "continuous-integration/jenkins/pipinstall"
 coverageContext = "continuous-integration/jenkins/coverage"
 
-// Local user exec path inside the py container, apps installed with 'pip install --user' live here
+// Local user exec path inside the py container, apps installed with 'pip3 install --user' live here
 userPath = '/home/jenkins/.local/bin'
 
-// Error msgs for pip install stage
+// Error msgs for pip3 install stage
 lockErrorRegex = /.*Your Pipfile.lock \(\S+\) is out of date. Expected: \(\S+\).*/
 lockError = "\n* `Pipfile.lock` is out of sync. Run '`pipenv lock`' and commit the changes."
 installError = "\n* '`pipenv install`' has failed."
@@ -162,8 +162,8 @@ def checkCoverage() {
 
 
 def runPipInstall(scmVars) {
-    sh "pip install --user --no-warn-script-location pipenv"
-    sh "${userPath}/pipenv run pip install --upgrade pip"
+    sh "pip3 install --user --no-warn-script-location pipenv"
+    sh "${userPath}/pipenv run pip3 install --upgrade pip"
 
     // NOTE: Removing old comments won't work unless Pipeline Github Plugin >= v2.0
     removePipfileComments()
