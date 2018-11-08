@@ -213,7 +213,8 @@ def runStages() {
     podTemplate(label: podLabel, slaveConnectTimeout: 120, cloud: 'openshift', containers: [
         containerTemplate(
             name: 'jnlp',
-            image: 'docker-registry.default.svc:5000/jenkins/jenkins-slave-base-centos7-python36',
+            image: 'docker-registry.default.svc:5000/jenkins/jenkins-slave-base-centos7-python36:latest',
+            alwaysPullImage: true,
             args: '${computer.jnlpmac} ${computer.name}',
             resourceRequestCpu: '200m',
             resourceLimitCpu: '1000m',
