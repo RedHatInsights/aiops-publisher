@@ -32,7 +32,6 @@ codecovThreshold = 0
 
 def resetContexts() {
     notify(unitTestContext, "PENDING")
-    notify(lintContext, "PENDING")
     notify(pipInstallContext, "PENDING")
     notify(coverageContext, "PENDING")
 }
@@ -130,7 +129,7 @@ def postPipfileComment(commitId, str) {
 
 def runUnitTests() {
     try {
-        sh "${userPath}/pipenv run python -m pytest --pylama --junitxml=junit.xml --cov=. --cov-report html tests/ -s -v"
+        sh "${userPath}/pipenv run python -m pytest --pylama --junitxml=junit.xml --cov=. --cov-report html -s -v"
         notify(unitTestContext, "SUCCESS")
     } catch (err) {
         echo err.getMessage()
@@ -219,7 +218,11 @@ def runStages() {
             resourceRequestCpu: '200m',
             resourceLimitCpu: '1000m',
             resourceRequestMemory: '256Mi',
-            resourceLimitMemory: '1Gi'
+            resourceLimitMemory: '1Gi',
+            envVars: [
+                envVar(key: 'LC_ALL', value: 'en_US.utf-8'),
+                envVar(key: 'LANG', value: 'en_US.utf-8'),
+            ],
         ),
     ]) {
         node(podLabel) {

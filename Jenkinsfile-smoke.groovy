@@ -80,7 +80,11 @@ if (triggeredByComment()) {
                 resourceRequestCpu: '200m',
                 resourceLimitCpu: '500m',
                 resourceRequestMemory: '256Mi',
-                resourceLimitMemory: '650Mi'
+                resourceLimitMemory: '650Mi',
+                envVars: [
+                    envVar(key: 'LC_ALL', value: 'en_US.utf-8'),
+                    envVar(key: 'LANG', value: 'en_US.utf-8'),
+                ],
             ),
         ]
     ) {
