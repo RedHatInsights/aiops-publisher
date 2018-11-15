@@ -33,8 +33,8 @@ def runStages() {
         stage('UnitTest') {
             withStatusContext.unitTest {
                 sh "${pipelineVars.userPath}/pipenv run python -m pytest --junitxml=junit.xml --cov=. --cov-report html -s -v"
-                junit 'junit.xml'
             }
+            junit 'junit.xml'
         }
 
         stage('Code coverage') {
