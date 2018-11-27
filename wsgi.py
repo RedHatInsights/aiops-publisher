@@ -1,8 +1,8 @@
 import os
 import logging
-import requests
 import io
 import tarfile
+import requests
 
 from flask import Flask, jsonify, request
 from flask.logging import default_handler
@@ -16,6 +16,7 @@ ROOT_LOGGER.addHandler(default_handler)
 
 # Upload Service
 UPLOAD_SERVICE = os.environ.get('UPLOAD_SERVICE')
+
 
 @application.route("/", methods=['POST'])
 def wake_up():
@@ -39,7 +40,9 @@ def wake_up():
 
     files = {
         'upload': (
-        'aiservice.tar.gz', open('aiservice.tar.gz', 'rb'), 'application/vnd.redhat.aiopspublisher.aiservice+tgz')
+            'aiservice.tar.gz', open('aiservice.tar.gz', 'rb'),
+            'application/vnd.redhat.aiopspublisher.aiservice+tgz'
+        )
     }
 
     headers = {'x-rh-insights-request-id': data_id}
