@@ -6,8 +6,7 @@ name = "pypi"
 [packages]
 app = "*"
 flask = "*"
-kafka-python = "*"
-"s3fs" = "*"
+requests = ">=2.20.0"
 "gunicorn" = "*"
 
 [dev-packages]
