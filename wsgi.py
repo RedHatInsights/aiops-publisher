@@ -17,7 +17,7 @@ ROOT_LOGGER.setLevel(application.logger.level)
 ROOT_LOGGER.addHandler(default_handler)
 
 # Upload Service
-UPLOAD_SERVICE = os.environ.get('UPLOAD_SERVICE')
+UPLOAD_SERVICE_ENDPOINT = os.environ.get('UPLOAD_SERVICE_ENDPOINT')
 
 
 @application.route("/", methods=['POST'])
@@ -58,7 +58,10 @@ def wake_up():
     headers = {'x-rh-insights-request-id': data_id}
 
     # send a POST request to upload service with files and headers info
-    requests.post(f'http://{UPLOAD_SERVICE}', files=files, headers=headers)
+    requests.post(
+        f'http://{UPLOAD_SERVICE_ENDPOINT}',
+        files=files, headers=headers
+    )
     os.remove(temp_file_name)
 
     return jsonify(
