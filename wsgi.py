@@ -2,6 +2,8 @@ import os
 import logging
 import io
 import tarfile
+import tempfile
+import json
 import requests
 
 from flask import Flask, jsonify, request
@@ -25,22 +27,30 @@ def wake_up():
     data_id = input_data['id']
     raw_data = input_data['data']
 
-    # create a tar.gz file
-    tar = tarfile.open('aiservice.tar.gz', 'w:gz')
-    data = io.BytesIO()
-    data_len = data.write(raw_data.encode())
-    info = tar.tarinfo()
-    info.name = 'aiservice_analyzed_data'
-    info.size = data_len
+    try:
+        # create a tar.gz file using a temp file
+        with tempfile.NamedTemporaryFile(dir='/tmp', delete=False) as tmp_file:
+            temp_file_name = tmp_file.name
+            with tarfile.open(temp_file_name, "w:gz") as tar:
+                data = io.BytesIO()
+                data_len = data.write(json.dumps(raw_data).encode())
+                info = tar.tarinfo()
+                info.name = 'aiservice_id_' + data_id
+                info.size = data_len
 
-    # add the tar.gz file to tar and close it
-    data.seek(0)
-    tar.addfile(info, data)
-    tar.close()
+                # add the tar.gz file to tar and close it
+                data.seek(0)
+                tar.addfile(info, data)
+                tar.close()
+    except IOError as e:
+        return jsonify(
+            status='Error',
+            message='Error during TAR.GZ creation: ' + str(e)
+        )
 
     files = {
         'upload': (
-            'aiservice.tar.gz', open('aiservice.tar.gz', 'rb'),
+            temp_file_name, open(temp_file_name, 'rb'),
             'application/vnd.redhat.aiopspublisher.aiservice+tgz'
         )
     }
@@ -49,6 +59,7 @@ def wake_up():
 
     # send a POST request to upload service with files and headers info
     requests.post(f'http://{UPLOAD_SERVICE}', files=files, headers=headers)
+    os.remove(temp_file_name)
 
     return jsonify(
         status='OK',
