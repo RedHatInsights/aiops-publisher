@@ -3,4 +3,4 @@
 
 def test_something():
     """Test something."""
-    pass
+    pass   # noqa
