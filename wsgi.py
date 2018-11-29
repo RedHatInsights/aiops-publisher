@@ -25,28 +25,25 @@ def wake_up():
     """Endpoint for upload and publish requests."""
     input_data = request.get_json(force=True)
     data_id = input_data['id']
+    ai_service_id = input_data.get('ai_service', 'generic_ai')
     raw_data = input_data['data']
 
     try:
-        # create a tar.gz file using a temp file
-        with tempfile.NamedTemporaryFile(dir='/tmp', delete=False) as tmp_file:
-            temp_file_name = tmp_file.name
-            with tarfile.open(temp_file_name, "w:gz") as tar:
-                data = io.BytesIO()
-                data_len = data.write(json.dumps(raw_data).encode())
-                info = tar.tarinfo()
-                info.name = 'aiservice_id_' + data_id
-                info.size = data_len
+        with tarfile.open(fileobj=tempfile.NamedTemporaryFile(delete=False), mode='w:gz') as f:   # noqa
+            data = io.BytesIO(json.dumps(raw_data).encode())
+            info = tarfile.TarInfo(name=f'{ai_service_id}_{data_id}.json')
+            info.size = len(data.getvalue())
+            temp_file_name = f.name
+            f.addfile(info, data)
 
-                # add the tar.gz file to tar and close it
-                data.seek(0)
-                tar.addfile(info, data)
-                tar.close()
-    except IOError as e:
+    except Exception as e:    # noqa
+        error_msg = 'Error during TAR.GZ creation: ' + str(e)
+        ROOT_LOGGER.exception("Exception: %s", error_msg)
         return jsonify(
             status='Error',
-            message='Error during TAR.GZ creation: ' + str(e)
-        )
+            type=str(e.__class__.__name__),
+            message=error_msg
+        ), 500
 
     files = {
         'upload': (
@@ -58,11 +55,21 @@ def wake_up():
     headers = {'x-rh-insights-request-id': data_id}
 
     # send a POST request to upload service with files and headers info
-    requests.post(
-        f'http://{UPLOAD_SERVICE_ENDPOINT}',
-        files=files, headers=headers
-    )
-    os.remove(temp_file_name)
+    try:
+        requests.post(
+            f'http://{UPLOAD_SERVICE_ENDPOINT}',
+            files=files,
+            headers=headers
+        )
+        os.remove(temp_file_name)
+    except Exception as e:   # noqa
+        error_msg = "Error while posting data to Upload service" + str(e)
+        ROOT_LOGGER.exception("Exception: %s", error_msg)
+        return jsonify(
+            status='Error',
+            type=str(e.__class__.__name__),
+            message=error_msg
+        ), 500
 
     return jsonify(
         status='OK',
