@@ -56,12 +56,16 @@ def wake_up():
 
     # send a POST request to upload service with files and headers info
     try:
-        requests.post(
+        response = requests.post(
             f'http://{UPLOAD_SERVICE_ENDPOINT}',
             files=files,
             headers=headers
         )
-        os.remove(temp_file_name)
+        if response.ok:
+            os.remove(temp_file_name)
+        else:
+            # TODO Implement Retry here # noqa
+            pass
     except Exception as e:   # noqa
         error_msg = "Error while posting data to Upload service" + str(e)
         ROOT_LOGGER.exception("Exception: %s", error_msg)
