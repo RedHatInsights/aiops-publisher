@@ -4,10 +4,10 @@ import io
 import tarfile
 import tempfile
 import json
-import requests
 
 from flask import Flask, jsonify, request
 from flask.logging import default_handler
+import requests
 
 application = Flask(__name__)  # noqa
 
@@ -29,14 +29,15 @@ def wake_up():
     raw_data = input_data['data']
 
     try:
-        with tarfile.open(fileobj=tempfile.NamedTemporaryFile(delete=False), mode='w:gz') as f:   # noqa
+        temp_file_name = tempfile.NamedTemporaryFile(delete=False).name
+        with tarfile.open(temp_file_name, "w:gz") as tar:
             data = io.BytesIO(json.dumps(raw_data).encode())
             info = tarfile.TarInfo(name=f'{ai_service_id}_{data_id}.json')
             info.size = len(data.getvalue())
-            temp_file_name = f.name
-            f.addfile(info, data)
+            temp_file_name = tar.name
+            tar.addfile(info, data)
 
-    except Exception as e:    # noqa
+    except (IOError, TypeError, tarfile.TarError) as e:
         error_msg = 'Error during TAR.GZ creation: ' + str(e)
         ROOT_LOGGER.exception("Exception: %s", error_msg)
         return jsonify(
@@ -61,17 +62,31 @@ def wake_up():
             files=files,
             headers=headers
         )
-        if response.ok:
+        response.raise_for_status()
+
+        try:
             os.remove(temp_file_name)
-        else:
-            # TODO Implement Retry here # noqa
-            pass
-    except Exception as e:   # noqa
-        error_msg = "Error while posting data to Upload service" + str(e)
+        except IOError as e:
+            # simply log the exception in this case
+            # do not return an error since this is not a critical error
+            error_msg = "Error while deleting the temporary file: " + str(e)
+            ROOT_LOGGER.exception("Exception: %s", error_msg)
+    except (ConnectionError, requests.HTTPError, requests.Timeout) as e:
+        error_msg = "Error while posting data to Upload service: " + str(e)
         ROOT_LOGGER.exception("Exception: %s", error_msg)
+
+        # TODO Implement Retry here # noqa
+        # Retry needs to examine the status_code/exact Exception type
+        # before it attempts to Retry
+        # a 415 error (Unsupported Media Type) for example,
+        # will continue to fail even in the next attempt
+        # so there is no value in pursuing a Retry for error=415
+        # A Timeout error, on the other hand, is worth Retrying
+
         return jsonify(
             status='Error',
             type=str(e.__class__.__name__),
+            status_code=response.status_code,
             message=error_msg
         ), 500
 
