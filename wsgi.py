@@ -4,6 +4,7 @@ import io
 import tarfile
 import tempfile
 import json
+import re
 
 from flask import Flask, jsonify, request
 from flask.logging import default_handler
@@ -37,7 +38,7 @@ def wake_up():
             temp_file_name = tar.name
             tar.addfile(info, data)
 
-    except (IOError, TypeError, tarfile.TarError) as e:
+    except (IOError, tarfile.TarError) as e:
         error_msg = 'Error during TAR.GZ creation: ' + str(e)
         ROOT_LOGGER.exception("Exception: %s", error_msg)
         return jsonify(
@@ -46,10 +47,11 @@ def wake_up():
             message=error_msg
         ), 500
 
+    ai_service_id = re.sub(r'[^a-z]', r'', ai_service_id.lower())
     files = {
         'upload': (
             temp_file_name, open(temp_file_name, 'rb'),
-            'application/vnd.redhat.aiopspublisher.aiservice+tgz'
+            f'application/vnd.redhat.{ai_service_id}.aiservice+tgz'
         )
     }
 
@@ -64,13 +66,6 @@ def wake_up():
         )
         response.raise_for_status()
 
-        try:
-            os.remove(temp_file_name)
-        except IOError as e:
-            # simply log the exception in this case
-            # do not return an error since this is not a critical error
-            error_msg = "Error while deleting the temporary file: " + str(e)
-            ROOT_LOGGER.exception("Exception: %s", error_msg)
     except (ConnectionError, requests.HTTPError, requests.Timeout) as e:
         error_msg = "Error while posting data to Upload service: " + str(e)
         ROOT_LOGGER.exception("Exception: %s", error_msg)
@@ -89,6 +84,14 @@ def wake_up():
             status_code=response.status_code,
             message=error_msg
         ), 500
+
+    try:
+        os.remove(temp_file_name)
+    except IOError as e:
+        # simply log the exception in this case
+        # do not return an error since this is not a critical error
+        error_msg = "Error while deleting the temporary file: " + str(e)
+        ROOT_LOGGER.exception("Exception: %s", error_msg)
 
     return jsonify(
         status='OK',
