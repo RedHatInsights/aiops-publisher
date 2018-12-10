@@ -16,6 +16,20 @@ schemes:
   - https
   - http
 paths:
+  /:
+    get:
+      operationId: get.root_path
+      tags:
+      - Liveliness
+      description:
+        Liveliness
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/RootPath'
+      produces:
+      - application/json
   /api/v1/invoke_upload_service:
     post:
       operationId: post.invoke_upload_service
@@ -41,6 +55,9 @@ paths:
         schema:
           $ref: '#/definitions/InvokeUploadService'
 definitions:
+  RootPath:
+    type: string
+    example: 'AIOPS Publisher up and running!'
   InvokeUploadService:
     type: object
     description: 'JSON Request Object'
