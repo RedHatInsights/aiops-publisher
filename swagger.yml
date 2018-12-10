@@ -30,6 +30,20 @@ paths:
             $ref: '#/definitions/RootPath'
       produces:
       - application/json
+  /api/v1/version:
+    get:
+      operationId: get.version
+      tags:
+      - Version
+      description:
+        Get the current version
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Version'
+      produces:
+      - application/json
   /api/v1/invoke_upload_service:
     post:
       operationId: post.invoke_upload_service
@@ -58,6 +72,9 @@ definitions:
   RootPath:
     type: string
     example: 'AIOPS Publisher up and running!'
+  Version:
+    type: string
+    example: 'AIOPS Publisher API Version 1.0.0'
   InvokeUploadService:
     type: object
     description: 'JSON Request Object'
