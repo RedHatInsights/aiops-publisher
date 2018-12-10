@@ -1,0 +1,60 @@
+swagger: '2.0'
+info:
+  description: >-
+    The AIOPS Publisher creates a TAR.GZ archive using the raw analyzed data
+    from the AI Service, then invokes the Upload service to upload the archive to S3 and produces a message broadcasting
+    the URL where the data was uploaded
+  version: 1.0.0
+  title: AIOPS Publisher
+  contact:
+    email: support@redhat.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+basePath: /
+schemes:
+  - https
+  - http
+paths:
+  /api/v1/invoke_upload_service:
+    post:
+      operationId: post.invoke_upload_service
+      tags:
+        - Upload and Publish
+      summary: Specify 'id' and 'data' to upload the data to S3
+      description:
+        Uploads raw analyzed data to S3 and produces a message broadcasting the URL where the data was uploaded
+      responses:
+        '200':
+          description: On success this API uploads raw analyzed data to S3 and produces a Kafka message on the topic `platform.upload.<ai_service>` with the URL information of where the data was uploaded on S3.
+        '413':
+          description: This error indicates that the Payload is too large. The user can specify a maximum allowable value for the Payload size in bytes in the Upload Service configuration.
+        '415':
+          description: This error indicates that the Upload Service did not recognize the Content-Type. Accepted Content-Types are gzipped tarfile, zip file
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: JSON-RPC data
+        schema:
+          $ref: '#/definitions/InvokeUploadService'
+definitions:
+  InvokeUploadService:
+    type: object
+    description: 'JSON Request Object'
+    required:
+      - id
+      - data
+    properties:
+      id:
+        type: string
+        example: '123'
+      data:
+        example: 'Test Data'
+      ai_service:
+        type: string
+        example: 'generic_ai'
+    xml:
+      name: InvokeUploadService
