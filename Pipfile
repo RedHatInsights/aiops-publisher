@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 app = "*"
 flask = "*"
+flask_restplus = "*"
 requests = ">=2.20.0"
 "gunicorn" = "*"
 
