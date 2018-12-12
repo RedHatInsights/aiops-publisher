@@ -16,7 +16,7 @@ UPLOAD_SERVICE_ENDPOINT = os.environ.get('UPLOAD_SERVICE_ENDPOINT')
 ROOT_LOGGER = logging.getLogger()
 
 
-def invoke_upload_service():
+def publish():
     """Endpoint for upload and publish requests."""
     input_data = request.get_json(force=True)
     data_id = input_data['id']

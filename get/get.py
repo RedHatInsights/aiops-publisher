@@ -18,5 +18,5 @@ def version():
     """Endpoint for API version."""
     return jsonify(
         status='OK',
-        message='AIOPS Publisher API Version 1.0.0'
+        message='AIOPS Publisher API Version 0.0.1'
     )

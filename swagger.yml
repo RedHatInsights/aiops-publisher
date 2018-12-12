@@ -4,7 +4,7 @@ info:
     The AIOPS Publisher creates a TAR.GZ archive using the raw analyzed data
     from the AI Service, then invokes the Upload service to upload the archive to S3 and produces a message broadcasting
     the URL where the data was uploaded
-  version: 1.0.0
+  version: 0.0.1
   title: AIOPS Publisher
   contact:
     email: support@redhat.com
@@ -13,7 +13,6 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 basePath: /
 schemes:
-  - https
   - http
 paths:
   /:
@@ -44,9 +43,9 @@ paths:
             $ref: '#/definitions/Version'
       produces:
       - application/json
-  /api/v1/invoke_upload_service:
+  /api/v1/publish:
     post:
-      operationId: post.invoke_upload_service
+      operationId: post.publish
       tags:
         - Upload and Publish
       summary: Specify 'id' and 'data' to upload the data to S3
@@ -67,15 +66,15 @@ paths:
       - in: body
         name: JSON-RPC data
         schema:
-          $ref: '#/definitions/InvokeUploadService'
+          $ref: '#/definitions/Publish'
 definitions:
   RootPath:
     type: string
     example: 'AIOPS Publisher up and running!'
   Version:
     type: string
-    example: 'AIOPS Publisher API Version 1.0.0'
-  InvokeUploadService:
+    example: 'AIOPS Publisher API Version 0.0.1'
+  Publish:
     type: object
     description: 'JSON Request Object'
     required:
@@ -91,4 +90,4 @@ definitions:
         type: string
         example: 'generic_ai'
     xml:
-      name: InvokeUploadService
+      name: Publish
