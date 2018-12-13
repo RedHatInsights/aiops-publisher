@@ -29,7 +29,7 @@ paths:
             $ref: '#/definitions/RootPath'
       produces:
       - application/json
-  /api/v1/version:
+  /api/v0/version:
     get:
       operationId: get.version
       tags:
@@ -43,7 +43,7 @@ paths:
             $ref: '#/definitions/Version'
       produces:
       - application/json
-  /api/v1/publish:
+  /api/v0/publish:
     post:
       operationId: post.publish
       tags:
