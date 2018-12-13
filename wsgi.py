@@ -28,7 +28,7 @@ API = Api(
     version='0.0.1',
     title='AIOPS Publisher API',
     description='AIOPS Publisher API',
-    doc='/doc/'
+    doc=False
     )
 
 PUBLISH_JSON = API.schema_model('PublishJSON', {
