@@ -19,6 +19,34 @@ ROOT_LOGGER.addHandler(default_handler)
 
 # Upload Service
 UPLOAD_SERVICE_ENDPOINT = os.environ.get('UPLOAD_SERVICE_ENDPOINT')
+
+
+def validate(input_data)-> dict:
+    """Validate input json."""
+    result = True
+    errors = {}
+    if 'id' not in input_data:
+        result = False
+        errors['id'] = "'id' is a required property"
+    elif not isinstance(input_data['id'], str):
+        result = False
+        errors['id'] = "'id' is not a string"
+
+    if 'data' not in input_data:
+        errors['data'] = "'data' is a required property"
+        result = False
+
+    if ('ai_service' in input_data and
+            not isinstance(input_data['ai_service'], str)):
+        errors['ai_service'] = "'ai_service' is not a string"
+        result = False
+
+    return {
+        "result": result,
+        "errors": errors
+    }
+
+
 @application.route('/', methods=['GET'])
 def get_liveliness():
     """Endpoint for Liveliness."""
@@ -41,6 +69,15 @@ def get_version():
 def post_publish():
     """Endpoint for upload and publish requests."""
     input_data = request.get_json(force=True)
+
+    validation = validate(input_data)
+    if validation['result'] is False:
+        return jsonify(
+            status='Error',
+            errors=validation['errors'],
+            message='Input payload validation failed'
+        ), 400
+
     data_id = input_data['id']
     ai_service_id = input_data.get('ai_service', 'generic_ai')
     raw_data = input_data['data']
