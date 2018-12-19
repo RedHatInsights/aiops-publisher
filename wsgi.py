@@ -30,6 +30,13 @@ def get_liveliness():
 
 @application.route("/", methods=['POST'])
 def wake_up():
+@application.route('/api/v0/version', methods=['GET'])
+def get_version():
+    """Endpoint for getting the current version."""
+    return jsonify(
+        status='OK',
+        message='AIOPS Publisher Version 0.0.1'
+    )
     """Endpoint for upload and publish requests."""
     input_data = request.get_json(force=True)
     data_id = input_data['id']
