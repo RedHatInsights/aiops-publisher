@@ -1,0 +1,67 @@
+swagger: '2.0'
+basePath: /
+paths:
+  /:
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for Liveliness
+      operationId: get_liveliness
+      tags:
+        - default
+  /api/v0/publish:
+    post:
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for upload and publish requests
+      operationId: post_publish
+      parameters:
+        - name: payload
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/PublishJSON'
+      tags:
+        - default
+  /api/v0/version:
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for getting the current version
+      operationId: get_version
+      tags:
+        - default
+info:
+  title: AIOPS Publisher API
+  version: 0.0.1
+  description: AIOPS Publisher API
+produces:
+  - application/json
+consumes:
+  - application/json
+tags:
+  - name: default
+    description: Default namespace
+definitions:
+  PublishJSON:
+    required:
+      - id
+      - data
+    properties:
+      id:
+        type: string
+        example: '123'
+      data:
+        example: []
+      ai_service:
+        type: string
+        example: generic_ai
+    type: object
+responses:
+  ParseError:
+    description: When a mask can't be parsed
+  MaskError:
+    description: When any error occurs on mask
