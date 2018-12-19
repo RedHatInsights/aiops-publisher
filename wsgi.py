@@ -19,6 +19,13 @@ ROOT_LOGGER.addHandler(default_handler)
 
 # Upload Service
 UPLOAD_SERVICE_ENDPOINT = os.environ.get('UPLOAD_SERVICE_ENDPOINT')
+@application.route('/', methods=['GET'])
+def get_liveliness():
+    """Endpoint for Liveliness."""
+    return jsonify(
+        status='OK',
+        message='AIOPS Publisher is up and running!'
+    )
 
 
 @application.route("/", methods=['POST'])
