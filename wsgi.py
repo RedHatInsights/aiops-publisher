@@ -19,6 +19,8 @@ ROOT_LOGGER = logging.getLogger()
 ROOT_LOGGER.setLevel(application.logger.level)
 ROOT_LOGGER.addHandler(default_handler)
 
+VERSION = "0.0.1"
+
 # Upload Service
 UPLOAD_SERVICE_ENDPOINT = os.environ.get('UPLOAD_SERVICE_ENDPOINT')
 
@@ -43,6 +45,7 @@ def get_version():
     """Endpoint for getting the current version."""
     return jsonify(
         status='OK',
+        version=VERSION,
         message='AIOPS Publisher Version 0.0.1'
     )
 
