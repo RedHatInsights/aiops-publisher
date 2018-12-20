@@ -10,6 +10,8 @@ from flask import Flask, jsonify, request
 from flask.logging import default_handler
 import requests
 
+from publish_json_schema import PublishJSONSchema
+
 application = Flask(__name__)  # noqa
 
 # Set up logging
@@ -23,28 +25,8 @@ UPLOAD_SERVICE_ENDPOINT = os.environ.get('UPLOAD_SERVICE_ENDPOINT')
 
 def validate(input_data)-> dict:
     """Validate input json."""
-    result = True
-    errors = {}
-    if 'id' not in input_data:
-        result = False
-        errors['id'] = "'id' is a required property"
-    elif not isinstance(input_data['id'], str):
-        result = False
-        errors['id'] = "'id' is not a string"
-
-    if 'data' not in input_data:
-        errors['data'] = "'data' is a required property"
-        result = False
-
-    if ('ai_service' in input_data and
-            not isinstance(input_data['ai_service'], str)):
-        errors['ai_service'] = "'ai_service' is not a string"
-        result = False
-
-    return {
-        "result": result,
-        "errors": errors
-    }
+    schema = PublishJSONSchema()
+    return schema.load(input_data)
 
 
 @application.route('/', methods=['GET'])
@@ -71,10 +53,10 @@ def post_publish():
     input_data = request.get_json(force=True)
 
     validation = validate(input_data)
-    if validation['result'] is False:
+    if validation.errors:
         return jsonify(
             status='Error',
-            errors=validation['errors'],
+            errors=validation.errors,
             message='Input payload validation failed'
         ), 400
 
