@@ -24,12 +24,8 @@ VERSION = "0.0.1"
 # Upload Service
 UPLOAD_SERVICE_ENDPOINT = os.environ.get('UPLOAD_SERVICE_ENDPOINT')
 
-
-def validate(input_data)-> dict:
-    """Validate input json."""
-    schema = PublishJSONSchema()
-    return schema.load(input_data)
-
+# Schema for the Publish API
+SCHEMA = PublishJSONSchema()
 
 
 @application.route('/api/v0/version', methods=['GET'])
@@ -46,8 +42,7 @@ def get_version():
 def post_publish():
     """Endpoint for upload and publish requests."""
     input_data = request.get_json(force=True)
-
-    validation = validate(input_data)
+    validation = SCHEMA.load(input_data)
     if validation.errors:
         return jsonify(
             status='Error',
