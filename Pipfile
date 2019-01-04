@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 app = "*"
 flask = "*"
-marshmallow = "*"
+marshmallow = "~=2.17.0"
 requests = ">=2.20.0"
 "gunicorn" = "*"
 
