@@ -31,14 +31,6 @@ def validate(input_data)-> dict:
     return schema.load(input_data)
 
 
-@application.route('/', methods=['GET'])
-def get_liveliness():
-    """Endpoint for Liveliness."""
-    return jsonify(
-        status='OK',
-        message='AIOPS Publisher is up and running!'
-    )
-
 
 @application.route('/api/v0/version', methods=['GET'])
 def get_version():

@@ -1,15 +1,6 @@
 swagger: '2.0'
 basePath: /
 paths:
-  /:
-    get:
-      responses:
-        '200':
-          description: Success
-      summary: Endpoint for Liveliness
-      operationId: get_liveliness
-      tags:
-        - default
   /api/v0/publish:
     post:
       responses:
