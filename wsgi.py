@@ -10,6 +10,8 @@ from flask import Flask, jsonify, request
 from flask.logging import default_handler
 import requests
 
+from publish_json_schema import PublishJSONSchema
+
 application = Flask(__name__)  # noqa
 
 # Set up logging
@@ -17,14 +19,37 @@ ROOT_LOGGER = logging.getLogger()
 ROOT_LOGGER.setLevel(application.logger.level)
 ROOT_LOGGER.addHandler(default_handler)
 
+VERSION = "0.0.1"
+
 # Upload Service
 UPLOAD_SERVICE_ENDPOINT = os.environ.get('UPLOAD_SERVICE_ENDPOINT')
 
+# Schema for the Publish API
+SCHEMA = PublishJSONSchema()
 
-@application.route("/", methods=['POST'])
-def wake_up():
+
+@application.route('/api/v0/version', methods=['GET'])
+def get_version():
+    """Endpoint for getting the current version."""
+    return jsonify(
+        status='OK',
+        version=VERSION,
+        message='AIOPS Publisher Version 0.0.1'
+    )
+
+
+@application.route("/api/v0/publish", methods=['POST'])
+def post_publish():
     """Endpoint for upload and publish requests."""
     input_data = request.get_json(force=True)
+    validation = SCHEMA.load(input_data)
+    if validation.errors:
+        return jsonify(
+            status='Error',
+            errors=validation.errors,
+            message='Input payload validation failed'
+        ), 400
+
     data_id = input_data['id']
     ai_service_id = input_data.get('ai_service', 'generic_ai')
     raw_data = input_data['data']
