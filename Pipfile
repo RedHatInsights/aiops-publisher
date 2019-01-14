@@ -7,6 +7,7 @@ name = "pypi"
 app = "*"
 flask = "*"
 marshmallow = "~=2.17.0"
+prometheus_client = "*"
 requests = ">=2.20.0"
 "gunicorn" = "*"
 
