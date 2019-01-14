@@ -11,6 +11,7 @@ from flask.logging import default_handler
 import requests
 
 from publish_json_schema import PublishJSONSchema
+import prometheus_metrics
 
 application = Flask(__name__)  # noqa
 
@@ -84,16 +85,19 @@ def post_publish():
 
     # send a POST request to upload service with files and headers info
     try:
+        prometheus_metrics.METRICS['posts'].inc()
         response = requests.post(
             f'http://{UPLOAD_SERVICE_ENDPOINT}',
             files=files,
             headers=headers
         )
         response.raise_for_status()
+        prometheus_metrics.METRICS['post_successes'].inc()
 
     except (ConnectionError, requests.HTTPError, requests.Timeout) as e:
         error_msg = "Error while posting data to Upload service: " + str(e)
         ROOT_LOGGER.exception("Exception: %s", error_msg)
+        prometheus_metrics.METRICS['post_errors'].inc()
 
         # TODO Implement Retry here # noqa
         # Retry needs to examine the status_code/exact Exception type
@@ -122,6 +126,12 @@ def post_publish():
         status='OK',
         message='Data published via Upload service'
     )
+
+
+@application.route("/metrics", methods=['GET'])
+def get_metrics():
+    """Metrics Endpoint."""
+    return prometheus_metrics.generate_latest_metrics()
 
 
 if __name__ == '__main__':
