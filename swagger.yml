@@ -27,6 +27,15 @@ paths:
       operationId: get_version
       tags:
         - default
+  /metrics:
+    get:
+      responses:
+        '200':
+          description: Success
+      summary: Endpoint for Metrics
+      operationId: get_metrics
+      tags:
+      - default
 info:
   title: AIOPS Publisher API
   version: 0.0.1
