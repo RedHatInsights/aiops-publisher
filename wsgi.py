@@ -20,14 +20,13 @@ PROMETHEUS_MULTIPROC_DIR = '/tmp/aiops_publisher'
 try:
     os.makedirs(PROMETHEUS_MULTIPROC_DIR, exist_ok=True)
     os.environ['prometheus_multiproc_dir'] = PROMETHEUS_MULTIPROC_DIR
+    import prometheus_metrics
 except IOError as e:
     # this is a non-starter for scraping metrics in the
     # Multiprocess Mode (Gunicorn)
     # terminate if there is an exception here
     sys.exit("Error while creating prometheus_multiproc_dir: " + str(e))
 
-
-import prometheus_metrics
 
 application = Flask(__name__)  # noqa
 
