@@ -5,12 +5,28 @@ import tarfile
 import tempfile
 import json
 import re
+import sys
 
 from flask import Flask, jsonify, request
 from flask.logging import default_handler
 import requests
 
 from publish_json_schema import PublishJSONSchema
+
+# all gunicorn processes in a given instance need to access a common
+# folder in /tmp where the metrics can be recorded
+PROMETHEUS_MULTIPROC_DIR = '/tmp/aiops_publisher'
+
+try:
+    os.makedirs(PROMETHEUS_MULTIPROC_DIR, exist_ok=True)
+    os.environ['prometheus_multiproc_dir'] = PROMETHEUS_MULTIPROC_DIR
+except IOError as e:
+    # this is a non-starter for scraping metrics in the
+    # Multiprocess Mode (Gunicorn)
+    # terminate if there is an exception here
+    sys.exit("Error while creating prometheus_multiproc_dir: " + str(e))
+
+
 import prometheus_metrics
 
 application = Flask(__name__)  # noqa
