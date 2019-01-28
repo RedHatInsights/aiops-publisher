@@ -1,5 +1,5 @@
-from prometheus_client import Counter, generate_latest
-from prometheus_client import CollectorRegistry, multiprocess
+from prometheus_client import (Counter, generate_latest,
+                               CollectorRegistry, multiprocess)
 
 
 # Prometheus Metrics
