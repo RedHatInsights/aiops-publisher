@@ -5,20 +5,41 @@ import tarfile
 import tempfile
 import json
 import re
+import sys
 
 from flask import Flask, jsonify, request
 from flask.logging import default_handler
 import requests
+from gunicorn.arbiter import Arbiter
 
 from publish_json_schema import PublishJSONSchema
-import prometheus_metrics
-
-application = Flask(__name__)  # noqa
 
 # Set up logging
 ROOT_LOGGER = logging.getLogger()
-ROOT_LOGGER.setLevel(application.logger.level)
 ROOT_LOGGER.addHandler(default_handler)
+
+# all gunicorn processes in a given instance need to access a common
+# folder in /tmp where the metrics can be recorded
+PROMETHEUS_MULTIPROC_DIR = '/tmp/aiops_publisher'
+
+try:
+    os.makedirs(PROMETHEUS_MULTIPROC_DIR, exist_ok=True)
+    os.environ['prometheus_multiproc_dir'] = PROMETHEUS_MULTIPROC_DIR
+    import prometheus_metrics
+except IOError as e:
+    # this is a non-starter for scraping metrics in the
+    # Multiprocess Mode (Gunicorn)
+    # terminate if there is an exception here
+    ROOT_LOGGER.error(
+        "Error while creating prometheus_multiproc_dir: %s", e
+    )
+    sys.exit(Arbiter.APP_LOAD_ERROR)
+
+
+application = Flask(__name__)  # noqa
+
+# Set up logging level
+ROOT_LOGGER.setLevel(application.logger.level)
 
 VERSION = "0.0.1"
 
@@ -131,7 +152,7 @@ def post_publish():
 @application.route("/metrics", methods=['GET'])
 def get_metrics():
     """Metrics Endpoint."""
-    return prometheus_metrics.generate_latest_metrics()
+    return prometheus_metrics.generate_aggregated_metrics()
 
 
 if __name__ == '__main__':
