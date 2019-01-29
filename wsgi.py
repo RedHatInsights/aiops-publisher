@@ -10,8 +10,13 @@ import sys
 from flask import Flask, jsonify, request
 from flask.logging import default_handler
 import requests
+from gunicorn.arbiter import Arbiter
 
 from publish_json_schema import PublishJSONSchema
+
+# Set up logging
+ROOT_LOGGER = logging.getLogger()
+ROOT_LOGGER.addHandler(default_handler)
 
 # all gunicorn processes in a given instance need to access a common
 # folder in /tmp where the metrics can be recorded
@@ -25,15 +30,16 @@ except IOError as e:
     # this is a non-starter for scraping metrics in the
     # Multiprocess Mode (Gunicorn)
     # terminate if there is an exception here
-    sys.exit("Error while creating prometheus_multiproc_dir: " + str(e))
+    ROOT_LOGGER.error(
+        "Error while creating prometheus_multiproc_dir: %s", e
+    )
+    sys.exit(Arbiter.APP_LOAD_ERROR)
 
 
 application = Flask(__name__)  # noqa
 
-# Set up logging
-ROOT_LOGGER = logging.getLogger()
+# Set up logging level
 ROOT_LOGGER.setLevel(application.logger.level)
-ROOT_LOGGER.addHandler(default_handler)
 
 VERSION = "0.0.1"
 
