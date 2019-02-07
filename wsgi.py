@@ -102,7 +102,10 @@ def post_publish():
         )
     }
 
-    headers = {'x-rh-insights-request-id': data_id}
+    b64_identity = request.headers.get('x-rh-identity')
+
+    headers = {'x-rh-insights-request-id': data_id,
+               'x-rh-identity': b64_identity}
 
     # send a POST request to upload service with files and headers info
     try:
