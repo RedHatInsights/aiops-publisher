@@ -6,6 +6,7 @@ import tempfile
 import json
 import re
 import sys
+from contextlib import suppress
 
 from flask import Flask, jsonify, request
 from flask.logging import default_handler
@@ -48,6 +49,36 @@ UPLOAD_SERVICE_ENDPOINT = os.environ.get('UPLOAD_SERVICE_ENDPOINT')
 
 # Schema for the Publish API
 SCHEMA = PublishJSONSchema()
+
+MAX_RETRIES = 3
+
+
+def _retryable(method: str, *args, **kwargs) -> requests.Response:
+    """Retryable HTTP request.
+
+    Invoke a "method" on "requests.session" with retry logic.
+    :param method: "get", "post" etc.
+    :param *args: Args for requests (first should be an URL, etc.)
+    :param **kwargs: Kwargs for requests
+    :return: Response object
+    :raises: HTTPError when all requests fail
+    """
+    with requests.Session() as session:
+        for attempt in range(MAX_RETRIES):
+            try:
+                resp = getattr(session, method)(*args, **kwargs)
+
+                resp.raise_for_status()
+            except (requests.HTTPError, requests.ConnectionError) as e:
+                ROOT_LOGGER.warning(
+                    'Request failed (attempt #%d), retrying: %s',
+                    attempt, str(e)
+                )
+                continue
+            else:
+                return resp
+
+    raise requests.HTTPError('All attempts failed')
 
 
 @application.route('/api/v0/version', methods=['GET'])
@@ -110,41 +141,25 @@ def post_publish():
     # send a POST request to upload service with files and headers info
     try:
         prometheus_metrics.METRICS['posts'].inc()
-        response = requests.post(
+        _retryable(
+            'post',
             f'http://{UPLOAD_SERVICE_ENDPOINT}',
             files=files,
             headers=headers
         )
-        response.raise_for_status()
         prometheus_metrics.METRICS['post_successes'].inc()
-
-    except (ConnectionError, requests.HTTPError, requests.Timeout) as e:
-        error_msg = "Error while posting data to Upload service: " + str(e)
-        ROOT_LOGGER.exception("Exception: %s", error_msg)
+    except requests.HTTPError as e:
+        ROOT_LOGGER.error("Unable to access upload-service: %s", e)
         prometheus_metrics.METRICS['post_errors'].inc()
-
-        # TODO Implement Retry here # noqa
-        # Retry needs to examine the status_code/exact Exception type
-        # before it attempts to Retry
-        # a 415 error (Unsupported Media Type) for example,
-        # will continue to fail even in the next attempt
-        # so there is no value in pursuing a Retry for error=415
-        # A Timeout error, on the other hand, is worth Retrying
-
         return jsonify(
             status='Error',
             type=str(e.__class__.__name__),
-            status_code=response.status_code,
-            message=error_msg
+            status_code=500,
+            message="Unable to access upload-service"
         ), 500
-
-    try:
-        os.remove(temp_file_name)
-    except IOError as e:
-        # simply log the exception in this case
-        # do not return an error since this is not a critical error
-        error_msg = "Error while deleting the temporary file: " + str(e)
-        ROOT_LOGGER.exception("Exception: %s", error_msg)
+    finally:
+        with suppress(IOError):
+            os.remove(temp_file_name)
 
     return jsonify(
         status='OK',
@@ -159,4 +174,6 @@ def get_metrics():
 
 
 if __name__ == '__main__':
-    application.run()
+    # pylama:ignore=C0103
+    port = os.environ.get("PORT", 8003)
+    application.run(port=int(port))
