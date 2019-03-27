@@ -4,7 +4,6 @@ import io
 import tarfile
 import tempfile
 import json
-import re
 import sys
 from contextlib import suppress
 
@@ -125,7 +124,6 @@ def post_publish():
             message=error_msg
         ), 500
 
-    ai_service_id = re.sub(r'[^a-z]', r'', ai_service_id.lower())
     files = {
         'upload': (
             temp_file_name, open(temp_file_name, 'rb'),
