@@ -44,7 +44,7 @@ ROOT_LOGGER.setLevel(application.logger.level)
 VERSION = "0.0.1"
 
 # Upload Service
-UPLOAD_SERVICE_ENDPOINT = os.environ.get('UPLOAD_SERVICE_ENDPOINT')
+UPLOAD_SERVICE_API = os.environ.get('UPLOAD_SERVICE_API')
 
 # Schema for the Publish API
 SCHEMA = PublishJSONSchema()
@@ -141,7 +141,7 @@ def post_publish():
         prometheus_metrics.METRICS['posts'].inc()
         _retryable(
             'post',
-            f'http://{UPLOAD_SERVICE_ENDPOINT}',
+            f'{UPLOAD_SERVICE_API}/upload',
             files=files,
             headers=headers
         )
