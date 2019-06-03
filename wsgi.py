@@ -11,6 +11,7 @@ from flask import Flask, jsonify, request
 from flask.logging import default_handler
 import requests
 from gunicorn.arbiter import Arbiter
+from urllib3.exceptions import NewConnectionError
 
 from publish_json_schema import PublishJSONSchema
 
@@ -78,6 +79,29 @@ def _retryable(method: str, *args, **kwargs) -> requests.Response:
                 return resp
 
     raise requests.HTTPError('All attempts failed')
+
+
+@application.route('/', methods=['GET'])
+def get_root():
+    """Root Endpoint for Liveness/Readiness check."""
+    try:
+        _retryable(
+            'get',
+            f'{UPLOAD_SERVICE_API}/upload',
+        )
+        status = 'OK'
+        message = 'Up and Running'
+        status_code = 200
+    except (requests.HTTPError, NewConnectionError):
+        status = 'Error'
+        message = 'upload-service not operational'
+        status_code = 500
+
+    return jsonify(
+        status=status,
+        version=VERSION,
+        message=message
+    ), status_code
 
 
 @application.route('/api/v0/version', methods=['GET'])

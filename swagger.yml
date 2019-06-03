@@ -1,6 +1,17 @@
 swagger: '2.0'
 basePath: /
 paths:
+  /:
+    get:
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: Upload service not operational
+      summary: Endpoint for Index/Root Route
+      operationId: get_root
+      tags:
+      - default
   /api/v0/publish:
     post:
       responses:
