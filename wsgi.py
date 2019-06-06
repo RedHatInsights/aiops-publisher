@@ -114,6 +114,16 @@ def get_version():
     )
 
 
+@application.route("/api/v0/publish", methods=['GET'])
+def get_publish():
+    """Endpoint for get route for publish."""
+    return jsonify(
+        status='OK',
+        version=VERSION,
+        message='Requires a POST call to publish recommendations'
+    )
+
+
 @application.route("/api/v0/publish", methods=['POST'])
 def post_publish():
     """Endpoint for upload and publish requests."""
