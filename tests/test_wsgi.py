@@ -53,3 +53,19 @@ class TestRoot:
             b'{"message":"upload-service not operational",' \
             b'"status":"Error","version":"0.0.1"}\n'
         assert response.status_code == 500
+
+
+class TestGetPublish:
+    """Test various use cases for the index route."""
+
+    def test_get_route_for_publish(self, mocker):
+        """Test index route when upload service is present."""
+        client = application.test_client(mocker)
+
+        url = '/api/v0/publish'
+
+        response = client.get(url)
+        assert response.get_data() == b'{"message":"Requires a POST call ' \
+            b'to publish recommendations",' \
+            b'"status":"OK","version":"0.0.1"}\n'
+        assert response.status_code == 200
