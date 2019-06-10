@@ -3,8 +3,9 @@ from wsgi import application
 
 # R0201 = Method could be a function Used when a method doesn't use its bound
 # instance, and so could be written as a function.
+# R0903 = Too few public methods
 
-# pylint: disable=R0201
+# pylint: disable=R0201,R0903
 
 
 class TestRoot:
