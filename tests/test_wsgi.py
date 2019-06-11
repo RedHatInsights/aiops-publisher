@@ -1,10 +1,12 @@
+import json
 import requests
-from wsgi import application
+from wsgi import application, VERSION
 
 # R0201 = Method could be a function Used when a method doesn't use its bound
 # instance, and so could be written as a function.
+# R0903 = Too few public methods
 
-# pylint: disable=R0201
+# pylint: disable=R0201,R0903
 
 
 class TestRoot:
@@ -20,8 +22,13 @@ class TestRoot:
         mocker.patch('wsgi._retryable', side_effect=upload_response)
 
         response = client.get(url)
-        assert response.get_data() == \
-            b'{"message":"Up and Running","status":"OK","version":"0.0.1"}\n'
+
+        output = {
+            "message": "Up and Running",
+            "status": "OK",
+            "version": VERSION
+        }
+        assert json.loads(response.get_data()) == output
         assert response.status_code == 200
 
     def test_route_with_upload_service_error(self, mocker):
@@ -37,9 +44,13 @@ class TestRoot:
         mocker.patch('wsgi._retryable', side_effect=upload_response)
 
         response = client.get(url)
-        assert response.get_data() == \
-            b'{"message":"upload-service not operational",' \
-            b'"status":"Error","version":"0.0.1"}\n'
+
+        output = {
+            "message": "upload-service not operational",
+            "status": "Error",
+            "version": VERSION
+        }
+        assert json.loads(response.get_data()) == output
         assert response.status_code == 500
 
     def test_route_with_upload_service_absent(self, mocker):
@@ -49,7 +60,28 @@ class TestRoot:
         url = '/'
 
         response = client.get(url)
-        assert response.get_data() == \
-            b'{"message":"upload-service not operational",' \
-            b'"status":"Error","version":"0.0.1"}\n'
+
+        output = {
+            "message": "upload-service not operational",
+            "status": "Error",
+            "version": VERSION
+        }
+        assert json.loads(response.get_data()) == output
         assert response.status_code == 500
+
+
+def test_get_route_for_publish(mocker):
+    """Test GET Publish route."""
+    client = application.test_client(mocker)
+
+    url = '/api/v0/publish'
+
+    response = client.get(url)
+
+    output = {
+        "message": "Requires a POST call to publish recommendations",
+        "status": "OK",
+        "version": VERSION
+    }
+    assert json.loads(response.get_data()) == output
+    assert response.status_code == 200
