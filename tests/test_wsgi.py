@@ -70,21 +70,18 @@ class TestRoot:
         assert response.status_code == 500
 
 
-class TestGetPublish:
-    """Test various use cases for the index route."""
+def test_get_route_for_publish(mocker):
+    """Test GET Publish route."""
+    client = application.test_client(mocker)
 
-    def test_get_route_for_publish(self, mocker):
-        """Test index route when upload service is present."""
-        client = application.test_client(mocker)
+    url = '/api/v0/publish'
 
-        url = '/api/v0/publish'
+    response = client.get(url)
 
-        response = client.get(url)
-
-        output = {
-            "message": "Requires a POST call to publish recommendations",
-            "status": "OK",
-            "version": VERSION
-        }
-        assert json.loads(response.get_data()) == output
-        assert response.status_code == 200
+    output = {
+        "message": "Requires a POST call to publish recommendations",
+        "status": "OK",
+        "version": VERSION
+    }
+    assert json.loads(response.get_data()) == output
+    assert response.status_code == 200
