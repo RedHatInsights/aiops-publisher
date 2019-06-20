@@ -8,6 +8,7 @@ import wsgi
 def patch_env(monkeypatch):
     """Set up environment."""
     # Set Test variables
-    monkeypatch.setenv('UPLOAD_SERVICE_API', 'http://upload:8080')
+    monkeypatch.setenv('UPLOAD_SERVICE', 'http://upload:8080')
+    monkeypatch.setenv('UPLOAD_SERVICE_PATH', 'api/ingress/v1')
 
     reload(wsgi)
