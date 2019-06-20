@@ -46,7 +46,7 @@ VERSION = "0.0.1"
 
 # Upload Service
 UPLOAD_SERVICE = os.environ.get('UPLOAD_SERVICE')
-UPLOAD_SERVICE_API = os.environ.get('UPLOAD_SERVICE_API')
+UPLOAD_SERVICE_PATH = os.environ.get('UPLOAD_SERVICE_PATH')
 
 # Schema for the Publish API
 SCHEMA = PublishJSONSchema()
@@ -173,7 +173,7 @@ def post_publish():
         prometheus_metrics.METRICS['posts'].inc()
         _retryable(
             'post',
-            f'{UPLOAD_SERVICE_API}/upload',
+            f'{UPLOAD_SERVICE}/{UPLOAD_SERVICE_PATH}/upload',
             files=files,
             headers=headers
         )
