@@ -45,6 +45,7 @@ ROOT_LOGGER.setLevel(application.logger.level)
 VERSION = "0.0.1"
 
 # Upload Service
+UPLOAD_SERVICE = os.environ.get('UPLOAD_SERVICE')
 UPLOAD_SERVICE_API = os.environ.get('UPLOAD_SERVICE_API')
 
 # Schema for the Publish API
@@ -85,10 +86,7 @@ def _retryable(method: str, *args, **kwargs) -> requests.Response:
 def get_root():
     """Root Endpoint for Liveness/Readiness check."""
     try:
-        _retryable(
-            'get',
-            f'{UPLOAD_SERVICE_API}/upload',
-        )
+        _retryable('get', f'{UPLOAD_SERVICE}')
         status = 'OK'
         message = 'Up and Running'
         status_code = 200
