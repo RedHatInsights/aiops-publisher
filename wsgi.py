@@ -144,12 +144,17 @@ def post_publish():
             data = io.BytesIO(json.dumps(raw_data).encode())
             info = tarfile.TarInfo(name=f'{ai_service_id}_{data_id}.json')
             info.size = len(data.getvalue())
-            temp_file_name = tar.name
             tar.addfile(info, data)
 
     except (IOError, tarfile.TarError) as e:
         error_msg = 'Error during TAR.GZ creation: ' + str(e)
         ROOT_LOGGER.exception("Exception: %s", error_msg)
+
+        # Remove tmp file if it already exists
+        if 'temp_file_name' in locals():
+            with suppress(IOError):
+                os.remove(temp_file_name)
+
         return jsonify(
             status='Error',
             type=str(e.__class__.__name__),

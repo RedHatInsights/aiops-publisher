@@ -1,12 +1,14 @@
 language: python
 python:
-  - '3.6'
+- '3.6'
 install:
-  - pip install pipenv
-  - pipenv sync
-  - pipenv sync --dev
+- pip install pipenv
+- pipenv sync
+- pipenv sync --dev
 script:
-  - pylama
+- pytest  --pylama --cov=. --cov-report=xml .
+after_success:
+- bash <(curl -s https://codecov.io/bash)
 notifications:
   slack:
     secure: TY4nWbl1IsZdy5WEPY1Tl+nArB8xeBDJpL9ozRW//SZNF0TH+M/q1W6eqUkfDj5HuCbxsnsqSYAe2xl88wRHmDQcxg3ITDYHDTvd0Epuaxetwh5CEKQmUCOrHuvgpXIJFJZpeO8bI4I1Iv3NKTR0NIZ56diwh4fqJiMrvazQHebrpRdw4e+caKp1Dzrz4NhF+PsQwIVtUd9fBt6n7PgOwEkFh9T0y71wu6x02VejZKNrwl8QyPzHMDahgMnBgf0cv3H06N5iCfb7J2z3iMkGlNPOpy+xqaMf3Th6C9skiBrP9cNX6e0vMV6aR/ePJ+zPPnOmgvHzrO2dRVtqZS+qu9AWlkBRivwsflI2MpyXsjuNp5+lmXBreAD57WPfrPIKKzhGY7PcX/qWGYg9P/Ysgw9b+iLc05FXHJbt1rYf4oVy28Suh741U6BxziA5YgoTnAltp5LeqoPf1Y9B/AaA+HKaxOf1IB8xxIZU6svhUGxgwNUiAn0rpe7dkYDfgQXlJ4cke8p2q5ocDi8Q4axRPN6W0f1Wmycrc8hCms37pnxAyOMwX/RYQPV+lh6wRb7IYEpaPGkIzpapJy1JWg4VTIGOi+vtHlaMe8uRi9R5Tu2y6iT5I4P2TtFNpFZ4STyS8+M9FVCLUj1Yj/h/aXX+AI7U+7TeF4wZklDRGvQMW38=
