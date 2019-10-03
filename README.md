@@ -1,8 +1,9 @@
-# AI-Ops: Publisher microservice
+# ⛔️ DEPRECATED: AI-Ops: Publisher microservice
 
 [![Build Status](https://travis-ci.org/ManageIQ/aiops-publisher.svg?branch=master)](https://travis-ci.org/ManageIQ/aiops-publisher)
 [![codecov](https://codecov.io/gh/ManageIQ/aiops-publisher/branch/master/graph/badge.svg)](https://codecov.io/gh/ManageIQ/aiops-publisher)
 [![License](https://img.shields.io/badge/license-APACHE2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
 
 Thin Flask server uploading the input to S3 and publishing an *available* message on Kafka.
 
